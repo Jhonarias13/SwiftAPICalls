@@ -10,19 +10,56 @@ import SwiftUI
 
 struct DealListView: View {
     @StateObject var DealsviewModel = DealsViewModel()
+    @State private var searchText: String = ""
+    
+    var filteredDeals: [Deal] {
+        if searchText.count == 0 {
+            return DealsviewModel.deals
+        } else {
+            let resultsByName = DealsviewModel.deals.filter {$0.customerName.contains(searchText)}
+            let resultsByPhone = DealsviewModel.deals.filter {$0.customerPhone.contains(searchText)}
+            var resultsByProductName: [Deal] = []
+            
+            for deal in DealsviewModel.deals {
+                for product in deal.productLines {
+                    if let pd = product.name {
+                        if pd.contains(searchText) {
+                            print(deal)
+                            resultsByProductName.append(deal)
+                        }
+                    }
+                }
+            }
+            
+            return resultsByName + resultsByPhone + resultsByProductName
+        }
+    }
     
     var body: some View {
         NavigationView {
             List {
-                ForEach(DealsviewModel.deals, id: \.id) {deal in
-                    DealRowView(deal: deal)
+                ForEach(filteredDeals) {deal in
+                    NavigationLink {
+                        DealDetailView()
+                    } label: {
+                        if filteredDeals.count > 0 {
+                            DealRowView(deal: deal)
+                        } else {
+                            VStack {
+                                Text("No encontramos conincidencias")
+                                    .padding(20)
+                                ProgressView()
+                            }
+                        }
+                    }
                 }
             }
-            .listStyle(.plain)
             .navigationTitle("Deals")
-            .onAppear {
-                DealsviewModel.fetchDeals()
-            }
+        }
+        .searchable(text: $searchText)
+        .listStyle(PlainListStyle())
+        .onAppear {
+            DealsviewModel.fetchDeals()
         }
     }
 }

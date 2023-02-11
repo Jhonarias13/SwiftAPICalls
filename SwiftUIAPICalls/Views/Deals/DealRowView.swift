@@ -12,11 +12,14 @@ struct DealRowView: View {
     var body: some View {
         HStack{
             VStack {
-                Text("Acetaminofen 500mg")
+                Text(deal.productLines[0].name ?? "-")
                     .bold()
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Text(deal.customerName)
+                    .font(.system(size: 18))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Text(deal.customerPhone)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Text(deal.customerOrigin)
                     .frame(maxWidth: .infinity, alignment: .leading)
